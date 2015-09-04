@@ -57,25 +57,91 @@ public class ExtractHelper {
 
         List<WebElement> rows = element.findElements(By.cssSelector("div.table-body > div.row"));
 
-        if (rows != null && !rows.isEmpty()) {
-            List<RealTimeItem> sourceList = Lists.newArrayList();
-            sourceDO.setSources(sourceList);
-            for (WebElement row : rows) {
-                RealTimeSourceItem item = new RealTimeSourceItem();
-                String from = row.findElement(By.cssSelector("span.source > span")).getText();
-                String percent = row.findElement(By.cssSelector("span.percent")).getText();
-                if (CommonHelper.isNotBlank(percent) && percent.contains("%")) {
-                    percent = percent.replace("%", "");
-                }
-                String pv = row.findElement(By.cssSelector("span.pv")).getText();
+        List<RealTimeItem> sourceList = getRealTimeItems(rows);
+        sourceDO.setSources(sourceList);
 
-                item.setFrom(from);
-                item.setPercent(Double.valueOf(percent));
-                item.setVisitor(Integer.valueOf(pv));
+        return sourceDO;
+    }
+
+    private static List<RealTimeItem> getRealTimeItems(List<WebElement> rows) {
+        List<RealTimeItem> sourceList = null;
+        if (rows != null && !rows.isEmpty()) {
+            sourceList = Lists.newArrayList();
+
+            for (WebElement row : rows) {
+                RealTimeSourceItem item = getRealTimeSourceItem(row);
                 sourceList.add(item);
             }
         }
-        return sourceDO;
+        return sourceList;
+    }
+
+    private static RealTimeSourceItem getRealTimeSourceItem(WebElement row) {
+        RealTimeSourceItem item = new RealTimeSourceItem();
+
+        String from = row.findElement(By.cssSelector("span.source > span")).getText();
+        String percent = row.findElement(By.cssSelector("span.percent")).getText();
+        if (CommonHelper.isNotBlank(percent) && percent.contains("%")) {
+            percent = percent.replace("%", "");
+        }
+        String pv = row.findElement(By.cssSelector("span.pv")).getText();
+
+        item.setFrom(from);
+        item.setPercent(Double.valueOf(percent));
+        item.setVisitor(Integer.valueOf(pv));
+
+        WebElement child = row.findElement(By.cssSelector("ul.row-children"));
+
+        if(!child.isDisplayed()){
+            row.findElement(By.cssSelector("span.source")).click();
+        }
+
+        List<WebElement> children = child.findElements(By.cssSelector("li"));
+
+        if (children != null && !children.isEmpty()) {
+            List<RealTimeItem> details = getRealTimeChildItems(children);
+
+            item.setDetail(details);
+        }
+        return item;
+    }
+
+    private static List<RealTimeItem> getRealTimeChildItems(List<WebElement> rows) {
+        List<RealTimeItem> sourceList = null;
+        if (rows != null && !rows.isEmpty()) {
+            sourceList = Lists.newArrayList();
+
+            for (WebElement row : rows) {
+                RealTimeSourceItem item = getRealTimeChildSourceItem(row);
+                if (item != null) {
+                    sourceList.add(item);
+                }
+            }
+        }
+        return sourceList;
+    }
+
+    private static RealTimeSourceItem getRealTimeChildSourceItem(WebElement row) {
+        String from = row.findElement(By.cssSelector("span.source")).getText();
+        if (CommonHelper.isNotBlank(from)) {
+            RealTimeSourceItem item = new RealTimeSourceItem();
+
+            String percent = row.findElement(By.cssSelector("span.percent")).getText();
+            if (CommonHelper.isNotBlank(percent) && percent.contains("%")) {
+                percent = percent.replace("%", "");
+            }
+            String pv = row.findElement(By.cssSelector("span.pv")).getText();
+
+            item.setFrom(from);
+            if (CommonHelper.isNotBlank(percent)) {
+                item.setPercent(Double.valueOf(percent));
+            }
+            if (CommonHelper.isNotBlank(pv)) {
+                item.setVisitor(Integer.valueOf(pv));
+            }
+            return item;
+        }
+        return null;
     }
 
     private static RealTimeSourceDO getRealTimeRegion(WebElement element) {

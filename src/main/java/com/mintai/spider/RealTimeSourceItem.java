@@ -11,8 +11,7 @@ import java.util.List;
 public class RealTimeSourceItem extends RealTimeItem {
     private double percent;
 
-
-    private List<RealTimeSourceItem> detail;
+    private List<RealTimeItem> detail;
 
     public double getPercent() {
         return percent;
@@ -22,11 +21,11 @@ public class RealTimeSourceItem extends RealTimeItem {
         this.percent = percent;
     }
 
-    public List<RealTimeSourceItem> getDetail() {
+    public List<RealTimeItem> getDetail() {
         return detail;
     }
 
-    public void setDetail(List<RealTimeSourceItem> detail) {
+    public void setDetail(List<RealTimeItem> detail) {
         this.detail = detail;
     }
 }

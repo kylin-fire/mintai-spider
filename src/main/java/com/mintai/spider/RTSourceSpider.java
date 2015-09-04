@@ -27,27 +27,29 @@ public class RTSourceSpider {
         // 实时直播
         driver.get(baseUrl + "index.htm");
 
-        // 登录
-        while (true) {
-            String text = driver.findElement(By.id("mod-banner")).getText();
-            if (text != null && !text.isEmpty()) {
-                break;
+        if (driver.getCurrentUrl().contains("login.htm")) {
+            // 登录
+            while (true) {
+                String text = driver.findElement(By.id("mod-banner")).getText();
+                if (text != null && !text.isEmpty()) {
+                    break;
+                }
             }
-        }
 
-        driver.switchTo().frame(0);
-        driver.findElement(By.id("TPL_username_1")).sendKeys(userName);
-        driver.findElement(By.id("TPL_password_1")).sendKeys(password);
-        driver.findElement(By.id("J_SubmitStatic")).click();
+            driver.switchTo().frame(0);
+            driver.findElement(By.id("TPL_username_1")).sendKeys(userName);
+            driver.findElement(By.id("TPL_password_1")).sendKeys(password);
+            driver.findElement(By.id("J_SubmitStatic")).click();
 
-        while (driver.getCurrentUrl().contains("login.taobao.com")) {
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
+            while (driver.getCurrentUrl().contains("login.taobao.com")) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                }
             }
-        }
 
-        driver.switchTo().defaultContent();
+            driver.switchTo().defaultContent();
+        }
 
         // 实时来源
         driver.get(baseUrl + "source.htm?_res_id_=7");

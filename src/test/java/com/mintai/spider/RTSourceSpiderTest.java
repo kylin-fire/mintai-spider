@@ -9,19 +9,20 @@ public class RTSourceSpiderTest {
     public void testRTSource() throws Exception {
         String userName = "";
         String password = "";
+        String path = "d:/mintai/";
 
         RTSourceSpider spider = new RTSourceSpider();
 
         // 调度
         WebDriver driver = spider.craw(userName, password);
 
-        OutputHelper.outputSource("RealTime", driver.getCurrentUrl(), driver.getPageSource());
+        OutputHelper.outputSource(path, "RealTime", driver.getCurrentUrl(), driver.getPageSource());
 
         Multimap<String, RealTimeSourceDO> platform = ExtractHelper.extractPlatform(driver);
-        OutputHelper.outputExtract("RealTime", platform);
+        OutputHelper.outputExtract(path, "RealTime", platform);
 
         Multimap<String, RealTimeSourceDO> region = ExtractHelper.extractRegion(driver);
-        OutputHelper.outputExtract("RealTime", region);
+        OutputHelper.outputExtract(path, "RealTime", region);
 
         // 退出
         spider.destroy();

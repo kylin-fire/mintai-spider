@@ -23,12 +23,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class OutputHelper {
 
-    private static final String PATHNAME = OutputHelper.class.getResource("/").getPath();
     private static final String DATE_FORMAT = "yyyyMMddHHmmss";
     private static Gson gson = new Gson();
     private static long lastTime = 0;
 
-    public static void outputSource(String realTime, String url, String source) {
+    public static void outputSource(String path, String realTime, String url, String source) {
         String urlHex = "";
         if (CommonHelper.isNotBlank(url)) {
             urlHex = DigestUtils.md5Hex(url.getBytes());
@@ -37,14 +36,15 @@ public class OutputHelper {
         Date date = new Date();
         long time = date.getTime();
         // 最多每10分钟保存一次快照
-        if (lastTime == 0 || lastTime - time > TimeUnit.MINUTES.toMillis(10)) {
+        if (lastTime == 0 || time - lastTime > TimeUnit.MINUTES.toMillis(10)) {
             lastTime = time;
 
-            String fileName = getFullName(realTime, CommonHelper.formatDate(date, DATE_FORMAT), urlHex);
+            String fileName = getFullName(path, realTime, CommonHelper.formatDate(date, DATE_FORMAT), urlHex);
             File file = new File(fileName);
 
             try {
                 if (!file.exists()) {
+                    System.out.println(fileName);
                     file.createNewFile();
                 }
 
@@ -55,7 +55,7 @@ public class OutputHelper {
         }
     }
 
-    public static void outputExtract(String realTime, Multimap<String, RealTimeSourceDO> result) {
+    public static void outputExtract(String path, String realTime, Multimap<String, RealTimeSourceDO> result) {
 
         Set<String> keys = result.keySet();
 
@@ -65,7 +65,7 @@ public class OutputHelper {
             Collection<RealTimeSourceDO> sourceList = result.get(key);
 
             for (RealTimeSourceDO sourceDO : sourceList) {
-                String fileName = getFullName(realTime, CommonHelper.formatDate(sourceDO.getTime(), DATE_FORMAT), key);
+                String fileName = getFullName(path, realTime, CommonHelper.formatDate(sourceDO.getTime(), DATE_FORMAT), key);
                 File file = new File(fileName);
 
                 try {
@@ -86,7 +86,7 @@ public class OutputHelper {
                         newFiles.add(fileName);
                     }
 
-                    Files.append(gson.toJson(sourceDO), file, Charset.forName("UTF-8"));
+                    Files.append(gson.toJson(sourceDO) + "\n", file, Charset.forName("UTF-8"));
                 } catch (IOException e) {
                     System.out.println(Throwables.getRootCause(e).getMessage());
                 }
@@ -94,7 +94,7 @@ public class OutputHelper {
         }
     }
 
-    private static String getFullName(String dir, String time, String key) {
-        return PATHNAME + dir + "/" + time + key + ".txt";
+    private static String getFullName(String path, String dir, String time, String key) {
+        return path + dir + "/" + key + "_" + time + ".txt";
     }
 }
