@@ -45,6 +45,7 @@ public class RTSourceSpider {
                 try {
                     Thread.sleep(200);
                 } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -52,7 +53,7 @@ public class RTSourceSpider {
         }
 
         // 实时来源
-        driver.get(baseUrl + "source.htm?_res_id_=7");
+        driver.findElement(By.cssSelector("a.title-live-source")).click();
 
         return driver;
     }
